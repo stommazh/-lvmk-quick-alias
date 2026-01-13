@@ -1,0 +1,38 @@
+{
+    "name": "@lvmk/quick-alias",
+    "version": "1.0.0",
+    "description": "Quick shell alias setup - AI git commits, shell reload, and more",
+    "main": "bin/index.js",
+    "bin": {
+        "quick-alias": "./bin/index.js"
+    },
+    "scripts": {
+        "test": "node bin/index.js --help"
+    },
+    "keywords": [
+        "git",
+        "commit",
+        "ai",
+        "alias",
+        "shell",
+        "zsh",
+        "bash",
+        "cli",
+        "productivity"
+    ],
+    "author": "lvmk",
+    "license": "MIT",
+    "dependencies": {
+        "chalk": "^5.3.0",
+        "inquirer": "^9.2.12",
+        "ora": "^8.0.1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/lvmk/quick-alias"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "type": "module"
+}
