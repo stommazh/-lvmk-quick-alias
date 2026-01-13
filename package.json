@@ -1,6 +1,6 @@
 {
     "name": "@lvmk/quick-alias",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Quick shell alias setup - AI git commits, shell reload, and more",
     "main": "bin/index.js",
     "bin": {
