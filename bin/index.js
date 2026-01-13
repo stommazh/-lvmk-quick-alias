@@ -3,12 +3,19 @@
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import ora from 'ora';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import { detectCLIs, CLI_INFO, getModelsForCLI } from '../lib/detector.js';
 import { testHeadlessMode } from '../lib/tester.js';
 import { installAliases, detectShellProfile } from '../lib/installer.js';
 import { installReloadAlias } from '../lib/reload.js';
 
-const VERSION = '1.0.0';
+// Read version from package.json
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const pkg = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf-8'));
+const VERSION = pkg.version;
 
 // Header
 function showHeader() {
