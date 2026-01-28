@@ -1,7 +1,7 @@
 {
-    "name": "@lvmk/quick-alias",
-    "version": "1.0.2",
-    "description": "Quick shell alias setup - AI git commits, shell reload, and more",
+    "name": "@khanglvm/quick-alias",
+    "version": "1.1.0",
+    "description": "Quick shell alias setup - AI git commits, shell reload, pnpm dev aliases, and more",
     "main": "bin/index.js",
     "bin": {
         "quick-alias": "./bin/index.js"
@@ -18,9 +18,12 @@
         "zsh",
         "bash",
         "cli",
-        "productivity"
+        "productivity",
+        "pnpm",
+        "npm",
+        "yarn"
     ],
-    "author": "lvmk",
+    "author": "khanglvm",
     "license": "MIT",
     "dependencies": {
         "chalk": "^5.3.0",

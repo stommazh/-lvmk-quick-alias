@@ -10,6 +10,7 @@ import { detectCLIs, CLI_INFO, getModelsForCLI } from '../lib/detector.js';
 import { testHeadlessMode } from '../lib/tester.js';
 import { installAliases, detectShellProfile } from '../lib/installer.js';
 import { installReloadAlias } from '../lib/reload.js';
+import { installPnpmAliases } from '../lib/pnpm-aliases.js';
 
 // Read version from package.json
 const __filename = fileURLToPath(import.meta.url);
@@ -22,7 +23,7 @@ function showHeader() {
   console.log('');
   console.log(chalk.bold.blue('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
   console.log(chalk.bold('⚡ Quick Alias Setup'));
-  console.log(chalk.dim(`   v${VERSION} | @lvmk/quick-alias`));
+  console.log(chalk.dim(`   v${VERSION} | @khanglvm/quick-alias`));
   console.log(chalk.bold.blue('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
   console.log('');
   console.log(chalk.dim('Set up useful shell aliases to boost your productivity.'));
@@ -33,11 +34,12 @@ function showHeader() {
 function showHelp() {
   showHeader();
   console.log('Usage:');
-  console.log('  npx @lvmk/quick-alias          Run interactive setup');
-  console.log('  npx @lvmk/quick-alias --help   Show this help message\n');
+  console.log('  npx @khanglvm/quick-alias          Run interactive setup');
+  console.log('  npx @khanglvm/quick-alias --help   Show this help message\n');
   console.log('Available Features:');
-  console.log('  • AI Git Aliases - Auto-generate commit messages with AI');
-  console.log('  • Shell Reload   - Quickly reload your shell configuration');
+  console.log('  • AI Commit    - Auto-generate commit messages');
+  console.log('  • Shell Reload - Reload shell config');
+  console.log('  • Stealth pnpm - Transparent pnpm for yarn/npm projects');
   console.log('');
 }
 
@@ -50,12 +52,16 @@ async function showMainMenu() {
       message: 'What would you like to set up?',
       choices: [
         {
-          name: `${chalk.cyan('AI Git Aliases')} ${chalk.dim('- Auto-generate commit messages with AI')}`,
+          name: `${chalk.cyan('AI Commit')} ${chalk.dim('- Auto-generate commit messages')}`,
           value: 'git'
         },
         {
-          name: `${chalk.cyan('Shell Reload')} ${chalk.dim('- Quickly reload your shell configuration')}`,
+          name: `${chalk.cyan('Shell Reload')} ${chalk.dim('- Reload shell config')}`,
           value: 'reload'
+        },
+        {
+          name: `${chalk.cyan('Stealth pnpm')} ${chalk.dim('- Use pnpm in yarn/npm projects (no config changes)')}`,
+          value: 'pnpm'
         },
         new inquirer.Separator(),
         {
@@ -347,6 +353,68 @@ async function setupShellReload() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// FEATURE: pnpm Dev Aliases
+// ═══════════════════════════════════════════════════════════════
+
+async function setupPnpmAliases() {
+  console.log('');
+  console.log(chalk.bold.yellow('📦 Stealth pnpm Setup'));
+  console.log(chalk.dim('   Use pnpm in yarn/npm projects without changing any config files.\n'));
+  console.log(chalk.dim('   How it works:'));
+  console.log(chalk.dim('   • Installs via pnpm (80% disk savings) but yarn/npm commands still work'));
+  console.log(chalk.dim('   • Auto-generates workspace configs (excluded from git)'));
+  console.log(chalk.dim('   • da/dr use yarn or npm to update lockfiles for team compatibility'));
+  console.log(chalk.dim('   • Your team uses yarn/npm normally - only you save disk space!'));
+  console.log('');
+
+  const { confirm } = await inquirer.prompt([
+    {
+      type: 'confirm',
+      name: 'confirm',
+      message: 'Install stealth pnpm aliases (di, da, dr)?',
+      default: true
+    }
+  ]);
+
+  if (!confirm) return false;
+
+  const result = await installPnpmAliases();
+
+  if (result.conflict) {
+    const { action } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'action',
+        message: 'pnpm aliases already exist. Override?',
+        choices: [
+          { name: 'Yes, override', value: 'override' },
+          { name: 'No, cancel', value: 'cancel' }
+        ]
+      }
+    ]);
+
+    if (action === 'cancel') return false;
+
+    const overrideResult = await installPnpmAliases({ overwrite: true });
+    if (!overrideResult.success) {
+      console.log(chalk.red(`Failed: ${overrideResult.error}`));
+      return false;
+    }
+  } else if (!result.success) {
+    console.log(chalk.red(`Failed: ${result.error}`));
+    return false;
+  }
+
+  console.log(chalk.green('✓ pnpm Dev Aliases installed!\n'));
+  console.log(chalk.dim('Usage:'));
+  console.log(`  ${chalk.cyan('di')}  ${chalk.dim('Install deps via pnpm (space-saving)')}`);
+  console.log(`  ${chalk.cyan('da')}  ${chalk.dim('Add dep (auto-detects yarn/npm), reinstall via pnpm')}`);
+  console.log(`  ${chalk.cyan('dr')}  ${chalk.dim('Remove dep (auto-detects yarn/npm), reinstall via pnpm')}`);
+
+  return { profile: result.profile };
+}
+
+// ═══════════════════════════════════════════════════════════════
 // MAIN
 // ═══════════════════════════════════════════════════════════════
 
@@ -375,6 +443,8 @@ async function main() {
       result = await setupGitAliases();
     } else if (feature === 'reload') {
       result = await setupShellReload();
+    } else if (feature === 'pnpm') {
+      result = await setupPnpmAliases();
     }
 
     if (result && result.profile) {
