@@ -1,6 +1,6 @@
 {
     "name": "@khanglvm/quick-alias",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "description": "Quick shell alias setup - AI git commits, shell reload, pnpm dev aliases, and more",
     "main": "bin/index.js",
     "bin": {
